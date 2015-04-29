@@ -4,7 +4,8 @@
     tools:context=".MainActivity">
     <item
         android:id="@+id/add_shortcut"
-        app:showAsAction="never"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_action_shortcut"
         android:title="@string/add_shortcut">
     </item>
 </menu>

@@ -64,14 +64,14 @@
             android:layout_height="wrap_content"
             android:id="@+id/hintHeader"
             android:textStyle="italic"/>
-
-        <ListView
-            android:layout_width="wrap_content"
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/suggestionList"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/listViewSuggest"
             android:layout_below="@+id/hintHeader"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true" />
+
     </RelativeLayout>
 
 </LinearLayout>

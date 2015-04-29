@@ -13,6 +13,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -75,6 +76,10 @@ public class FragmentDrawer extends Fragment {
         loadLists();
     }
 
+    public void openDrawer(){
+        mDrawerLayout.openDrawer(Gravity.LEFT);
+    }
+
     private void loadLists() {
         // drawer labels
         ArrayList<String> tempArray = new ArrayList<>();
@@ -127,6 +132,7 @@ public class FragmentDrawer extends Fragment {
 
             }
         }));
+        db.close();
     }
 
     @Override

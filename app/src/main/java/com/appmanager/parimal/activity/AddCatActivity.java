@@ -1,6 +1,7 @@
 package com.appmanager.parimal.activity;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -8,9 +9,13 @@ import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -20,12 +25,16 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.appmanager.parimal.R;
+import com.appmanager.parimal.adapter.NavigationDrawerAdapter;
 import com.appmanager.parimal.db.AppEntryDBHelper;
 import com.appmanager.parimal.db.AppsReaderContract;
 import com.appmanager.parimal.fragments.AppCategoryDetailFragment;
+import com.appmanager.parimal.fragments.FragmentDrawer;
 import com.appmanager.parimal.model.AppDetail;
+import com.appmanager.parimal.model.NavDrawerItem;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class AddCatActivity extends AppCompatActivity {
@@ -33,13 +42,14 @@ public class AddCatActivity extends AppCompatActivity {
     AppDetail currentApp = null;
     TextView label;
     EditText catEntry;
-    ListView lv2;
     int numRows = 0;
+    private RecyclerView recyclerView;
+    private NavigationDrawerAdapter adapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_cat);
-        lv2 = (ListView) findViewById(R.id.listViewSuggest);
+        recyclerView = (RecyclerView) findViewById(R.id.suggestionList);
         numRows = loadListSuggest();
         label = (TextView) findViewById(R.id.newCatHeader);
         catEntry = (EditText) findViewById(R.id.editTextNewCat);
@@ -91,19 +101,39 @@ public class AddCatActivity extends AppCompatActivity {
 
             } while (c.moveToNext());
         }
-
-        lv2.setAdapter(new ArrayAdapter<String>(
-                this,
-                android.R.layout.simple_list_item_activated_1,
-                android.R.id.text1,
-                items));
-        lv2.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        int x = items.size();
+        String[] titles = new String[x];
+        titles = items.toArray(titles);
+        adapter = new NavigationDrawerAdapter(this, getData(titles));
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        final String[] finalTitles = titles;
+        recyclerView.addOnItemTouchListener(new RecyclerTouchListener(this, recyclerView, new FragmentDrawer.ClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                catEntry.setText(items.get(position));
+            public void onClick(View view, int position) {
+                catEntry.setText(finalTitles[position]);
             }
-        });
+
+            @Override
+            public void onLongClick(View view, int position) {
+
+            }
+        }));
+        db.close();
         return items.size();
+    }
+
+    private List<NavDrawerItem> getData(String[] titles) {
+        List<NavDrawerItem> data = new ArrayList<>();
+
+
+        // preparing navigation drawer items
+        for (int i = 0; i < titles.length; i++) {
+            NavDrawerItem navItem = new NavDrawerItem();
+            navItem.setTitle(titles[i]);
+            data.add(navItem);
+        }
+        return data;
     }
 
 
@@ -139,5 +169,41 @@ public class AddCatActivity extends AppCompatActivity {
         db.update(AppsReaderContract.AppEntry.TABLE_NAME, values, AppsReaderContract.AppEntry._ID + " = ?",
                 new String[] { String.valueOf(app_index) });
         finish();
+    }
+
+    static class RecyclerTouchListener implements RecyclerView.OnItemTouchListener {
+
+        private GestureDetector gestureDetector;
+        private FragmentDrawer.ClickListener clickListener;
+
+        public RecyclerTouchListener(Context context, final RecyclerView recyclerView, final FragmentDrawer.ClickListener clickListener) {
+            this.clickListener = clickListener;
+            gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+                @Override
+                public boolean onSingleTapUp(MotionEvent e) {
+                    return true;
+                }
+
+                @Override
+                public void onLongPress(MotionEvent e) {
+
+
+                }
+            });
+        }
+
+        @Override
+        public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+
+            View child = rv.findChildViewUnder(e.getX(), e.getY());
+            if (child != null && clickListener != null && gestureDetector.onTouchEvent(e)) {
+                clickListener.onClick(child, rv.getChildAdapterPosition(child));
+            }
+            return false;
+        }
+
+        @Override
+        public void onTouchEvent(RecyclerView rv, MotionEvent e) {
+        }
     }
 }

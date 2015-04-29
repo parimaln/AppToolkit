@@ -31,42 +31,40 @@ public class MyReceiver extends BroadcastReceiver {
 
         // when package removed
         if (intent.getAction().equals("android.intent.action.PACKAGE_REMOVED")) {
-            Log.e(" BroadcastReceiver ", "onReceive called "
-                    + " PACKAGE_REMOVED "+getPackageName(intent));
-            Toast.makeText(context, "PACKAGE_REMOVED! "+getPackageName(intent),
-                    Toast.LENGTH_LONG).show();
-
-            db.execSQL("DELETE FROM entry WHERE package='"+getPackageName(intent)+"'");
+            if(!getPackageName(intent).matches("com.appmanager.parimal"))
+                db.execSQL("DELETE FROM entry WHERE package='"+getPackageName(intent)+"'");
         }
         // when package installed
         else if (intent.getAction().equals(
                 "android.intent.action.PACKAGE_ADDED")) {
+            if(!getPackageName(intent).matches("com.appmanager.parimal")){
+                Log.e(" BroadcastReceiver ", "PACKAGE_ADDED");
 
-            Log.e(" BroadcastReceiver ", "PACKAGE_ADDED");
+                ApplicationInfo app = null;
+                String label = null;
+                try {
+                    app = context.getPackageManager().getApplicationInfo(getPackageName(intent), 0);
+                    label = app.loadLabel(context.getPackageManager()).toString();
+                } catch (PackageManager.NameNotFoundException e) {
+                    e.printStackTrace();
+                }
 
-            ApplicationInfo app = null;
-            String label = null;
-            try {
-                app = context.getPackageManager().getApplicationInfo(getPackageName(intent), 0);
-                label = app.loadLabel(context.getPackageManager()).toString();
-            } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
+                Toast.makeText(context, " PACKAGE_ADDED! "+label,
+                        Toast.LENGTH_LONG).show();
+
+                ContentValues values = new ContentValues();
+                values.put(AppsReaderContract.AppEntry.COLUMN_APP_NAME, label);
+                values.put(AppsReaderContract.AppEntry.COLUMN_APP_PACKAGE, getPackageName(intent));
+                values.put(AppsReaderContract.AppEntry.COLUMN_APP_CATEGORY, "Uncategorized");
+                values.put(AppsReaderContract.AppEntry.COLUMN_APP_PIN, "0000");
+                values.put(AppsReaderContract.AppEntry.COLUMN_APP_PIN_USE, "false");
+                values.put(AppsReaderContract.AppEntry.COLUMN_APP_USAGE, "0");
+                db.insert(
+                        AppsReaderContract.AppEntry.TABLE_NAME,
+                        null,
+                        values);
+
             }
-
-            Toast.makeText(context, " PACKAGE_ADDED! "+label,
-                    Toast.LENGTH_LONG).show();
-
-            ContentValues values = new ContentValues();
-            values.put(AppsReaderContract.AppEntry.COLUMN_APP_NAME, label);
-            values.put(AppsReaderContract.AppEntry.COLUMN_APP_PACKAGE, getPackageName(intent));
-            values.put(AppsReaderContract.AppEntry.COLUMN_APP_CATEGORY, "Uncategorized");
-            values.put(AppsReaderContract.AppEntry.COLUMN_APP_PIN, "0000");
-            values.put(AppsReaderContract.AppEntry.COLUMN_APP_PIN_USE, "false");
-            values.put(AppsReaderContract.AppEntry.COLUMN_APP_USAGE, "0");
-            db.insert(
-                    AppsReaderContract.AppEntry.TABLE_NAME,
-                    null,
-                    values);
 
         }
 

@@ -1,0 +1,18 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MainActivity">
+    <item
+        android:id="@+id/action_opensource"
+        app:showAsAction="never"
+        android:orderInCategory="10"
+        android:title="Open Sources">
+    </item>
+
+    <item
+        android:id="@+id/action_force_refresh"
+        android:orderInCategory="11"
+        app:showAsAction="never"
+        android:title="Force Refresh">
+    </item>
+</menu>

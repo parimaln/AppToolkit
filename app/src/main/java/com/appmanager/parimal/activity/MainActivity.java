@@ -74,9 +74,10 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
 
         if(getIntent().hasExtra(AppCategoryDetailFragment.ARG_ITEM_CONTENT)){
             displayView(getIntent().getStringExtra(AppCategoryDetailFragment.ARG_ITEM_CONTENT), 1);
-        }else
+        }else {
             displayView("Uncategorised", 1);
-        drawerFragment.openDrawer();
+            drawerFragment.openDrawer();
+        }
     }
 
 

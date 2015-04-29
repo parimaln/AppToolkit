@@ -102,8 +102,26 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
             fragment.show(getSupportFragmentManager(), null);
             return true;
         }else if(id == R.id.action_force_refresh){
-            this.deleteDatabase("AppReader.db");
-            loadAppsAsyncTask(false);
+            new MaterialDialog.Builder(this)
+                    .title("Warning!!")
+                    .content("This will delete your previously created categories and start fresh, do you want to proceed?")
+                    .positiveText("YES")
+                    .negativeText("NO")
+                    .positiveColor(0x000)
+                    .negativeColor(0x000)
+                    .callback(new MaterialDialog.ButtonCallback() {
+                        @Override
+                        public void onPositive(MaterialDialog dialog) {
+                            getApplicationContext().deleteDatabase("AppReader.db");
+                            loadAppsAsyncTask(false);
+                        }
+
+                        @Override
+                        public void onNegative(MaterialDialog dialog) {
+                        }
+                    })
+                    .show();
+
         }
 
 
